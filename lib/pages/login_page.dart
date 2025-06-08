@@ -49,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20),
               TextInput(controller: _emailcontroller, label: "Email"),
               const SizedBox(height: 10),
-              TextInput(controller: _passwordController, label: "Mot de passe"),
+              TextInput(controller: _passwordController, label: "Mot de passe", obscureText: true),
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center, // Center the buttons

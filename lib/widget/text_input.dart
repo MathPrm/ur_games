@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import '../style.dart';
 
 class TextInput extends StatelessWidget {
+  final TextEditingController _controller;
+  final String label;
+  final bool obscureText;
+
   const TextInput({
     super.key,
     required TextEditingController controller,
-    required this.label
+    required this.label,
+     this.obscureText = false,
   }) : _controller = controller;
-
-  final TextEditingController _controller;
-  final String label;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +23,8 @@ class TextInput extends StatelessWidget {
       ),
       child: TextField(
         controller: _controller,
-        decoration: textInput.copyWith(labelText: label)
+        decoration: textInput.copyWith(labelText: label),
+        obscureText: obscureText,
       ),
     );
   }

@@ -59,14 +59,14 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 20),
               TextInput(controller: _emailController, label: "Email"),
               const SizedBox(height: 10),
-              TextInput(controller: _passwordController, label: "Mot de passe"),
+              TextInput(controller: _passwordController, label: "Mot de passe", obscureText: true),
               const SizedBox(height: 10),
-              TextInput(controller: _confirmedPasswordController, label: "confirmez le mot de passe"),
+              TextInput(controller: _confirmedPasswordController, label: "confirmez le mot de passe", obscureText: true),
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center, // Center the buttons
                 children: [
-                  PrimaryButton(text: "Se Connecter", function: () async {signup();}),
+                  PrimaryButton(text: "S'Inscire", function: () async {signup();}),
                   // Redirect to sign up page if user doesn't have an account
                 ],
               ),
