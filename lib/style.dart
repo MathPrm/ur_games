@@ -36,3 +36,7 @@ Container formContainer({required Widget child}) => Container(
   constraints: const BoxConstraints(maxWidth: 400),
   child: child,
 );
+
+const inputIcon = IconThemeData(
+  color: Color(0xFF455678),
+);

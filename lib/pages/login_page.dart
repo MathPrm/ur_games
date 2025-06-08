@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ur_games/auth/auth_service.dart';
 import 'package:ur_games/pages/register_page.dart';
 import 'package:ur_games/style.dart';
+import 'package:ur_games/widget/password_input.dart';
 import 'package:ur_games/widget/primary_button.dart';
 import 'package:ur_games/widget/text_input.dart';
 
@@ -49,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20),
               TextInput(controller: _emailcontroller, label: "Email"),
               const SizedBox(height: 10),
-              TextInput(controller: _passwordController, label: "Mot de passe", obscureText: true),
+              PassInput(controller: _passwordController, label: "Mot de passe"),
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center, // Center the buttons

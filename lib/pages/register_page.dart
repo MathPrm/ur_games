@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ur_games/auth/auth_service.dart';
+import 'package:ur_games/pages/login_page.dart';
 import 'package:ur_games/style.dart';
+import 'package:ur_games/widget/password_input.dart';
 import 'package:ur_games/widget/primary_button.dart';
 import 'package:ur_games/widget/text_input.dart';
 
@@ -59,9 +61,9 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 20),
               TextInput(controller: _emailController, label: "Email"),
               const SizedBox(height: 10),
-              TextInput(controller: _passwordController, label: "Mot de passe", obscureText: true),
+              PassInput(controller: _passwordController, label: "Mot de passe"),
               const SizedBox(height: 10),
-              TextInput(controller: _confirmedPasswordController, label: "confirmez le mot de passe", obscureText: true),
+              PassInput(controller: _confirmedPasswordController, label: "confirmez le mot de passe"),
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center, // Center the buttons
@@ -72,7 +74,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               GestureDetector(
                 onTap: () => Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => RegisterPage(),)),
+                  context, MaterialPageRoute(builder: (context) => LoginPage(),)),
                 child: Center(child: Text("Déjà inscrit? Cliquez sur ce lien pour vous connecter")),
               )
             ],
