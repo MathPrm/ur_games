@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:ur_games/pages/edit_profile_page.dart';
 import 'package:ur_games/pages/wish_list.dart';
 
 // Remplace ces imports par les tiens
 import 'pages/library.dart';
 import 'pages/friends_list.dart';
-// import 'pages/home.dart';
-import './pages/profile_page.dart';
 // import 'pages/add_game.dart';
 import 'auth/auth_service.dart';
 final AuthService _authService = AuthService();
@@ -19,7 +18,7 @@ class Content extends StatefulWidget {
 
 class _ContentState extends State<Content> {
   final List<Widget> _screenList = const [
-    ProfilePage(),
+    EditProfilePage(),
     WishList(),
     Library(),
     FriendsList(),
