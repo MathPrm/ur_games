@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ur_games/pages/friend.dart';
 import 'package:ur_games/pages/wish_list.dart';
 
 // Remplace ces imports par les tiens
@@ -23,6 +24,7 @@ class _ContentState extends State<Content> {
     WishList(),
     Library(),
     FriendsList(),
+    Friend()
   ];
 
   final List<IconData> _icons = [
