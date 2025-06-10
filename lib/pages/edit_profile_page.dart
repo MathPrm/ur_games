@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ur_games/auth/auth_service.dart';
-import 'package:ur_games/pages/register_page.dart';
 import 'package:ur_games/style.dart';
-import 'package:ur_games/widget/password_input.dart';
+import 'package:ur_games/widget/file_picker_button.dart';
 import 'package:ur_games/widget/primary_button.dart';
 import 'package:ur_games/widget/text_input.dart';
 
@@ -19,7 +18,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   // Text controllers
   final _emailcontroller = TextEditingController();
-  final _passwordController = TextEditingController();
   final _usernameController = TextEditingController();
 
   @override
@@ -35,13 +33,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 10),
               TextInput(controller: _emailcontroller, label: "Email"),
               const SizedBox(height: 20),
+              Center(
+                child: FilePickerButton(icon: Icons.add),
+              ),
+              const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center, // Center the buttons
                 children: [
-                  PrimaryButton(text: "Se Connecter", function: () async {}),
+                  PrimaryButton(icon: Icons.save, text: "Enregistrer", function: () async {}),
                   // Redirect to sign up page if user doesn't have an account
                 ],
-              )
+              ),
             ],
           ),
         ),

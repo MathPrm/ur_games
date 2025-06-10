@@ -3,6 +3,7 @@ import 'package:ur_games/style.dart';
 
 class PrimaryButton extends StatelessWidget {
   final String text;
+  final IconData? icon;
   final Future<void> Function() function;
   
 
@@ -10,6 +11,7 @@ class PrimaryButton extends StatelessWidget {
     super.key,
     required this.text,
     required this.function,
+    this.icon
   });
 
   @override
@@ -37,7 +39,16 @@ class PrimaryButton extends StatelessWidget {
               left: 12.0,
               right: 12.0
             ),
-            child: Text(text, style: primaryButtonText),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, color: Colors.white),
+                  const SizedBox(width: 8),
+                ],
+                Text(text, style: primaryButtonText),
+              ],
+            ),
           ),
         ),
       ),
