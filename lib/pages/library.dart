@@ -27,7 +27,7 @@ class _LibraryState extends State<Library> {
     try {
       final response = await _supabase
           .from('library')
-          .select('game_name');  // Récupère uniquement le champ game_name
+          .select('game_name, game_description'); // Récupère le nom et la description
       
       setState(() {
         games = response;
@@ -120,22 +120,39 @@ class _LibraryState extends State<Library> {
                               return Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
-                                  color: Colors.grey[800], // Couleur de fond temporaire
+                                  color: Colors.grey[800],
                                 ),
-                                child: Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      game['game_name'] ?? 'Nom indisponible',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      // Titre du jeu
+                                      Text(
+                                        game['game_name'] ?? 'Nom indisponible',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      textAlign: TextAlign.center,
-                                      maxLines: 3,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                                      const SizedBox(height: 4),
+                                      // Description du jeu
+                                      Text(
+                                        game['game_description'] ?? '',
+                                        style: const TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 10,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
                                   ),
                                 ),
                               );

@@ -17,8 +17,36 @@ class _AddGameState extends State<AddGame> {
   String? _selectedCategory;
   File? _selectedImage;
   bool _isLoading = false;
+  String? _selectedFriend = 'À moi'; // Valeur par défaut
+  List<Map<String, dynamic>> _friendsList = [];
 
   final SupabaseClient _supabase = Supabase.instance.client;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFriends();
+  }
+
+  Future<void> _loadFriends() async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) return;
+
+      final response = await _supabase
+          .from('friendlist')
+          .select()
+          .eq('id_user', user.id);
+
+      setState(() {
+        _friendsList = response;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur lors du chargement des amis: ${e.toString()}')),
+      );
+    }
+  }
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -45,14 +73,13 @@ class _AddGameState extends State<AddGame> {
     try {
       String? imageUrl;
       
-      // Upload de l'image si elle existe
       if (_selectedImage != null) {
         final fileExt = _selectedImage!.path.split('.').last;
         final fileName = '${DateTime.now().toIso8601String()}.$fileExt';
         final filePath = fileName;
 
         await _supabase.storage
-            .from('game_images') // Remplacez par votre bucket name
+            .from('game_images')
             .upload(filePath, _selectedImage!);
 
         imageUrl = _supabase.storage
@@ -60,11 +87,11 @@ class _AddGameState extends State<AddGame> {
             .getPublicUrl(filePath);
       }
 
-      // Insertion dans la table library
       await _supabase.from('library').insert({
         'game_name': _titleController.text,
         'game_description': _descriptionController.text,
         'game_picture': imageUrl,
+        'friend_name': _selectedFriend == 'À moi' ? null : _selectedFriend,
         'created_at': DateTime.now().toIso8601String(),
       });
 
@@ -72,11 +99,11 @@ class _AddGameState extends State<AddGame> {
         const SnackBar(content: Text('Jeu ajouté avec succès')),
       );
 
-      // Réinitialiser le formulaire
       _titleController.clear();
       _descriptionController.clear();
       setState(() {
         _selectedImage = null;
+        _selectedFriend = 'À moi';
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -141,6 +168,40 @@ class _AddGameState extends State<AddGame> {
                   filled: true,
                   fillColor: Colors.white,
                   hintText: 'Description du jeu',
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Sélection d'ami
+              const Text("Attribuer à :", style: TextStyle(color: Colors.white)),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: DropdownButton<String>(
+                  value: _selectedFriend,
+                  isExpanded: true,
+                  underline: const SizedBox(),
+                  items: [
+                    const DropdownMenuItem<String>(
+                      value: 'À moi',
+                      child: Text('À moi'),
+                    ),
+                    ..._friendsList.map((friend) {
+                      return DropdownMenuItem<String>(
+                        value: friend['friend_name'],
+                        child: Text(friend['friend_name']),
+                      );
+                    }),
+                  ],
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedFriend = newValue;
+                    });
+                  },
                 ),
               ),
               const SizedBox(height: 16),
