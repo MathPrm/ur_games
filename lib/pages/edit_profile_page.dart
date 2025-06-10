@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ur_games/auth/auth_service.dart';
+import 'package:ur_games/pages/library.dart';
 import 'package:ur_games/style.dart';
 import 'package:ur_games/widget/file_picker_button.dart';
 import 'package:ur_games/widget/primary_button.dart';
@@ -133,6 +134,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Profile updated successfully')),
                             );
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => Library(),));
                           }
                         },
                       ),
@@ -146,4 +148,4 @@ class _EditProfilePageState extends State<EditProfilePage> {
       ),
     );
   }
-}
+} 
