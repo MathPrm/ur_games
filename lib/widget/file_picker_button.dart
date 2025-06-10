@@ -1,13 +1,17 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class FilePickerButton extends StatelessWidget {
   final IconData icon;
+  final Function(File file) onFileSelected;
 
   const FilePickerButton({
     super.key,
     required this.icon,
+     required this.onFileSelected
   });
 
   @override
@@ -23,18 +27,23 @@ class FilePickerButton extends StatelessWidget {
         if (result != null) {
           if (kIsWeb) {
             // Handle web platform
-            final bytes = result.files.single.bytes;
+            final bytes = result.files.single.bytes!;
             final fileName = result.files.single.name;
+            // Create a File object from bytes for web
+            final file = File.fromRawPath(bytes);
             // ignore: use_build_context_synchronously
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Image sélectionnée: $fileName')),
             );
+            onFileSelected(file);
           } else {
             // Handle native platforms
             // ignore: use_build_context_synchronously
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Image sélectionnée: ${result.files.single.name}')),
             );
+            final file = File(result.files.single.path!);
+             onFileSelected(file);
           }
         } else {
           // ignore: use_build_context_synchronously

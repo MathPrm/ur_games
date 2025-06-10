@@ -5,7 +5,7 @@ import 'package:ur_games/widget/file_picker_button.dart';
 import 'package:ur_games/widget/primary_button.dart';
 import 'package:ur_games/widget/text_input.dart';
 import 'package:ur_games/services/profile_service.dart';
-
+import 'dart:io';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -15,7 +15,6 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
-    // BUILD UI
   final authService = AuthService();
   final profileService = ProfileService();
 
@@ -23,12 +22,50 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _emailcontroller = TextEditingController();
   final _usernameController = TextEditingController();
 
+  // Image state
+  String? _avatarUrl;
+  bool _isUploading = false;
+
   Future<Map<String, dynamic>>? profileFuture;
 
   @override
   void initState() {
     super.initState();
-    profileFuture = profileService.getProfile();
+    profileFuture = profileService.getProfile().then((profile) {
+      setState(() {
+        _avatarUrl = profile['avatar_url'];
+      });
+      return profile;
+    });
+  }
+
+  Future<void> _handleImageSelected(File file) async {
+    setState(() {
+      _isUploading = true;
+    });
+
+    try {
+      final imageUrl = await profileService.uploadProfileImage(file);
+      setState(() {
+        _avatarUrl = imageUrl;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Image uploaded successfully')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error uploading image: $e')),
+        );
+      }
+    } finally {
+      setState(() {
+        _isUploading = false;
+      });
+    }
   }
 
   @override
@@ -57,13 +94,29 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 shrinkWrap: true,
                 children: [
                   const SizedBox(height: 20),
+                  Center(
+                    child: Column(
+                      children: [
+                        if (_avatarUrl != null)
+                          CircleAvatar(
+                            radius: 50,
+                            backgroundImage: NetworkImage(_avatarUrl!),
+                          ),
+                        const SizedBox(height: 10),
+                        if (_isUploading)
+                          const CircularProgressIndicator()
+                        else
+                          FilePickerButton(
+                            icon: Icons.add_photo_alternate,
+                            onFileSelected: _handleImageSelected,
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                   TextInput(controller: _usernameController, label: "Nom d'utilisateur"),
                   const SizedBox(height: 10),
                   TextInput(controller: _emailcontroller, label: "Email"),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: FilePickerButton(icon: Icons.add),
-                  ),
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
