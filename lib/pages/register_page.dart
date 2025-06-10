@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ur_games/auth/auth_service.dart';
+import 'package:ur_games/pages/edit_profile_page.dart';
 import 'package:ur_games/pages/login_page.dart';
 import 'package:ur_games/style.dart';
 import 'package:ur_games/widget/password_input.dart';
@@ -41,7 +42,7 @@ class _RegisterPageState extends State<RegisterPage> {
       await authService.signUpWithEmailPassword(email, password);
 
       // pop this register page
-      Navigator.pop(context);
+      Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfilePage(),));
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -68,7 +69,7 @@ class _RegisterPageState extends State<RegisterPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center, // Center the buttons
                 children: [
-                  PrimaryButton(text: "S'Inscire", function: () async {signup();}),
+                  PrimaryButton(text: "S'Inscrire", function: () async {signup();}),
                   // Redirect to sign up page if user doesn't have an account
                 ],
               ),

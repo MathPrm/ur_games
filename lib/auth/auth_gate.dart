@@ -11,6 +11,7 @@ authenticated -> returns Profile Page
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:ur_games/pages/edit_profile_page.dart';
 import 'package:ur_games/pages/login_page.dart';
 import 'package:ur_games/pages/profile_page.dart';
 
@@ -36,7 +37,7 @@ class AuthGate extends StatelessWidget {
         final session = snapshot.hasData ? snapshot.data!.session : null;
 
         if (session != null) {
-          return ProfilePage();
+          return EditProfilePage();
         } else {
           return const LoginPage();
         }
