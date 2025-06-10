@@ -62,7 +62,7 @@ class FilePickerButton extends StatelessWidget {
           ),
           border: Border.all(
             color: Color(0xFF111724),
-            width: 2, // 2px de largeur
+            width: 2,
           ),
         ),
         child: IconButton(
