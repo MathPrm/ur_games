@@ -14,6 +14,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ur_games/pages/edit_profile_page.dart';
 import 'package:ur_games/pages/login_page.dart';
 import 'package:ur_games/pages/profile_page.dart';
+import '../content.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -37,7 +38,8 @@ class AuthGate extends StatelessWidget {
         final session = snapshot.hasData ? snapshot.data!.session : null;
 
         if (session != null) {
-          return EditProfilePage();
+          // return EditProfilePage();
+          return const Content();
         } else {
           return const LoginPage();
         }
