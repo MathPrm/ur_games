@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ur_games/pages/edit_profile_page.dart';
 import 'package:ur_games/pages/login_page.dart';
+import 'package:ur_games/pages/friend.dart';
 import 'package:ur_games/pages/wish_list.dart';
 import 'pages/library.dart';
 import 'pages/friends_list.dart';
@@ -21,7 +22,8 @@ class _ContentState extends State<Content> {
     EditProfilePage(),
     WishList(),
     Library(),
-    FriendsList()
+    FriendsList(),
+    Friend()
   ];
 
   final List<IconData> _icons = [

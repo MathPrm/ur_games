@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import '../widget/header.dart';
 
 class AddGame extends StatefulWidget {
   const AddGame({super.key});
@@ -39,6 +40,7 @@ class _AddGameState extends State<AddGame> {
     return Scaffold(
       backgroundColor: const Color(0xFF0F1320),
       body: SafeArea(
+        // Header(namePage:"MON AMI"),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
