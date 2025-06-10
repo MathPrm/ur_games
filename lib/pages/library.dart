@@ -1,8 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:ur_games/pages/add_game.dart';
 import '../widget/header.dart';
 
-class Library extends StatelessWidget {
+class Library extends StatefulWidget {
   const Library({super.key});
+
+  @override
+  State<Library> createState() => _LibraryState();
+}
+
+class _LibraryState extends State<Library> {
+  final _supabase = Supabase.instance.client;
+  List<dynamic> games = [];
+  bool isLoading = true;
+  String searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchGames();
+  }
+
+  // Fonction pour récupérer les jeux depuis Supabase
+  Future<void> _fetchGames() async {
+    try {
+      final response = await _supabase
+          .from('library')
+          .select('game_name');  // Récupère uniquement le champ game_name
+      
+      setState(() {
+        games = response;
+        isLoading = false;
+      });
+    } catch (error) {
+      setState(() {
+        isLoading = false;
+      });
+      print('Erreur lors de la récupération des jeux: $error');
+    }
+  }
+
+  // Fonction pour filtrer les jeux selon la recherche
+  List<dynamic> get filteredGames {
+    if (searchQuery.isEmpty) {
+      return games;
+    }
+    return games.where((game) => 
+      game['game_name'].toString().toLowerCase().contains(searchQuery.toLowerCase())
+    ).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11,12 +58,17 @@ class Library extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            Header(namePage:"BIBLIOTHEQUE"),
+            Header(namePage: "BIBLIOTHEQUE"),
 
             // Barre de recherche
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    searchQuery = value;
+                  });
+                },
                 decoration: InputDecoration(
                   hintText: 'Rechercher',
                   prefixIcon: const Icon(Icons.search),
@@ -46,26 +98,49 @@ class Library extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: GridView.builder(
-                  itemCount: 12, // à remplacer par le nombre de jeux dans ta BDD
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10,
-                    childAspectRatio: 0.65,
-                  ),
-                  itemBuilder: (context, index) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        image: DecorationImage(
-                          image: AssetImage('assets/game_$index.jpg'), // À remplacer plus tard par une image depuis la BDD
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                child: isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : filteredGames.isEmpty
+                        ? const Center(
+                            child: Text(
+                              'Aucun jeu trouvé',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          )
+                        : GridView.builder(
+                            itemCount: filteredGames.length,
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              mainAxisSpacing: 10,
+                              crossAxisSpacing: 10,
+                              childAspectRatio: 0.65,
+                            ),
+                            itemBuilder: (context, index) {
+                              final game = filteredGames[index];
+                              return Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: Colors.grey[800], // Couleur de fond temporaire
+                                ),
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      game['game_name'] ?? 'Nom indisponible',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
               ),
             ),
           ],
@@ -90,20 +165,23 @@ class Library extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha:0.3),
+              color: Colors.black.withOpacity(0.3),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
           ],
           border: Border.all(
             color: Color(0xFF111724),
-            width: 2, // 2px de largeur
+            width: 2,
           ),
         ),
         child: IconButton(
           icon: const Icon(Icons.add, color: Colors.white),
           onPressed: () {
-            // Action du bouton
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AddGame()),
+            );
           },
         ),
       ),
