@@ -1,25 +1,37 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import '../file_stub.dart'
+    if (dart.library.io) 'file_io.dart';
 
-class ProfileService {
+class EditProfilePage {
   final supabase = Supabase.instance.client;
 
-  // Upload l'image et retourne l'URL publique
-  Future<String> uploadProfileImage(File file) async {
+  // Upload l'image et retourne l'URL publique (mobile ou web)
+  Future<String> uploadProfileImage({
+    dynamic file, // Utilise dynamic pour accepter File sur mobile/desktop
+    Uint8List? bytes,
+    required String fileName,
+  }) async {
     final userId = supabase.auth.currentUser!.id;
-    final fileExt = file.path.split('.').last;
+    final fileExt = fileName.split('.').last;
     final filePath = 'avatars/$userId.$fileExt';
 
     try {
-      // Upload dans le bucket 'avatars'
-      await supabase.storage
-          .from('avatars')
-          .upload(filePath, file, fileOptions: const FileOptions(upsert: true));
+      if (kIsWeb) {
+        if (bytes == null) throw 'Aucun fichier sélectionné (web)';
+        await supabase.storage
+            .from('avatars')
+            .uploadBinary(filePath, bytes, fileOptions: const FileOptions(upsert: true));
+      } else {
+        if (file == null) throw 'Aucun fichier sélectionné (mobile)';
+        await supabase.storage
+            .from('avatars')
+            .upload(filePath, file, fileOptions: const FileOptions(upsert: true));
+      }
 
-      // Récupère l'URL publique
       final publicUrl = supabase.storage.from('avatars').getPublicUrl(filePath);
 
-      // Met à jour la table user avec l'URL de l'avatar
       await supabase
           .from('user')
           .update({'avatar_url': publicUrl})
@@ -31,7 +43,7 @@ class ProfileService {
     }
   }
 
-  // Méthode pour récupérer le profil (déjà présente chez toi)
+  // Méthode pour récupérer le profil
   Future<Map<String, dynamic>> getProfile() async {
     final userId = supabase.auth.currentUser!.id;
     final response = await supabase
@@ -42,7 +54,7 @@ class ProfileService {
     return response;
   }
 
-  // Méthode pour update le profil (déjà présente chez toi)
+  // Méthode pour update le profil
   Future<void> updateProfile({String? username, String? email}) async {
     final userId = supabase.auth.currentUser!.id;
     await supabase.from('user').update({
