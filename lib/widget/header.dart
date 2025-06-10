@@ -20,6 +20,8 @@ class Header extends StatelessWidget {
             child: Text(
               namePage,
               style: TextStyle(
+                fontFamily: 'Reload',
+                // fontWeight: FontWeight.w500 ,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
