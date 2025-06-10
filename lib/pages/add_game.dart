@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
 import '../widget/header.dart';
 
@@ -15,15 +16,37 @@ class _AddGameState extends State<AddGame> {
   final _descriptionController = TextEditingController();
   String? _selectedCategory;
   File? _selectedImage;
+  bool _isLoading = false;
+  String? _selectedFriend = 'À moi'; // Valeur par défaut
+  List<Map<String, dynamic>> _friendsList = [];
 
-  final List<String> _categories = [
-    'Aventure',
-    'RPG',
-    'Multijoueur',
-    'FPS',
-    'Sport',
-    'Simulation'
-  ];
+  final SupabaseClient _supabase = Supabase.instance.client;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFriends();
+  }
+
+  Future<void> _loadFriends() async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) return;
+
+      final response = await _supabase
+          .from('friendlist')
+          .select()
+          .eq('id_user', user.id);
+
+      setState(() {
+        _friendsList = response;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur lors du chargement des amis: ${e.toString()}')),
+      );
+    }
+  }
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -35,12 +58,69 @@ class _AddGameState extends State<AddGame> {
     }
   }
 
+  Future<void> _addGameToLibrary() async {
+    if (_titleController.text.isEmpty || _descriptionController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Veuillez remplir tous les champs')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      String? imageUrl;
+      
+      if (_selectedImage != null) {
+        final fileExt = _selectedImage!.path.split('.').last;
+        final fileName = '${DateTime.now().toIso8601String()}.$fileExt';
+        final filePath = fileName;
+
+        await _supabase.storage
+            .from('game_images')
+            .upload(filePath, _selectedImage!);
+
+        imageUrl = _supabase.storage
+            .from('game_images')
+            .getPublicUrl(filePath);
+      }
+
+      await _supabase.from('library').insert({
+        'game_name': _titleController.text,
+        'game_description': _descriptionController.text,
+        'game_picture': imageUrl,
+        'friend_name': _selectedFriend == 'À moi' ? null : _selectedFriend,
+        'created_at': DateTime.now().toIso8601String(),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Jeu ajouté avec succès')),
+      );
+
+      _titleController.clear();
+      _descriptionController.clear();
+      setState(() {
+        _selectedImage = null;
+        _selectedFriend = 'À moi';
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0F1320),
       body: SafeArea(
-        // Header(namePage:"MON AMI"),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -92,6 +172,40 @@ class _AddGameState extends State<AddGame> {
               ),
               const SizedBox(height: 16),
 
+              // Sélection d'ami
+              const Text("Attribuer à :", style: TextStyle(color: Colors.white)),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: DropdownButton<String>(
+                  value: _selectedFriend,
+                  isExpanded: true,
+                  underline: const SizedBox(),
+                  items: [
+                    const DropdownMenuItem<String>(
+                      value: 'À moi',
+                      child: Text('À moi'),
+                    ),
+                    ..._friendsList.map((friend) {
+                      return DropdownMenuItem<String>(
+                        value: friend['friend_name'],
+                        child: Text(friend['friend_name']),
+                      );
+                    }),
+                  ],
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedFriend = newValue;
+                    });
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+
               // Image picker
               Row(
                 children: [
@@ -136,29 +250,6 @@ class _AddGameState extends State<AddGame> {
               ),
               const SizedBox(height: 16),
 
-              // Dropdown
-              const Text("Ajouter à une catégorie :", style: TextStyle(color: Colors.white)),
-              const SizedBox(height: 4),
-              DropdownButtonFormField<String>(
-                dropdownColor: const Color(0xFF1E2431),
-                decoration: const InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                ),
-                value: _selectedCategory,
-                hint: const Text('Sélectionner une catégorie'),
-                onChanged: (val) {
-                  setState(() {
-                    _selectedCategory = val;
-                  });
-                },
-                items: _categories
-                    .map((category) =>
-                        DropdownMenuItem(value: category, child: Text(category)))
-                    .toList(),
-              ),
-              const SizedBox(height: 24),
-
               // Enregistrer button
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
@@ -166,11 +257,20 @@ class _AddGameState extends State<AddGame> {
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                 ),
-                onPressed: () {
-                  // TODO: Ajouter à la BDD
-                },
-                icon: const Icon(Icons.save),
-                label: const Text("ENREGISTRER"),
+                onPressed: _isLoading ? null : _addGameToLibrary,
+                icon: _isLoading 
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Icon(Icons.save),
+                label: _isLoading 
+                    ? const Text("En cours...")
+                    : const Text("ENREGISTRER"),
               ),
               const SizedBox(height: 12),
 
