@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../widget/header.dart';
+
 
 class FriendsList extends StatelessWidget {
   const FriendsList({super.key});
@@ -6,8 +8,7 @@ class FriendsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const SingleChildScrollView(
-    padding: EdgeInsets.all(10),
-    child: Text('FriendsList'),
+    child: Header(namePage:"MA LISTE D'AMI"),
     );
   }
 }

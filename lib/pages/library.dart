@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widget/header.dart';
 
 class Library extends StatelessWidget {
   const Library({super.key});
@@ -10,26 +11,7 @@ class Library extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // AppBar personnalisée
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'MA BIBLIOTHÈQUE',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  CircleAvatar(
-                    backgroundImage: AssetImage('assets/avatar.png'), // Remplace par ton asset
-                  ),
-                ],
-              ),
-            ),
+            Header(namePage:"BIBLIOTHEQUE"),
 
             // Barre de recherche
             Padding(
